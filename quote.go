@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -15,35 +14,45 @@ import (
 	"github.com/kokweikhong/klsescreener-scraper/keys"
 )
 
+// quoteResult is the KLCI market quote results data structure.
 type quoteResult struct {
-	Name         string
-	ShortName    string
-	Code         string
-	Market       string
-	Category     string
-	Price        float64
-	Changes      float64
+	Name         string  `json:"full_name"`
+	ShortName    string  `json:"short_name"`
+	Code         string  `json:"code"`
+	Market       string  `json:"market"`
+	Category     string  `json:"category"`
+	Price        float64 `json:"price"`
+	Changes      float64 `json:"changes"`
 	FiftyTwoWeek struct {
-		Low  float64
-		High float64
-	}
-	Volume        int
-	EPS           float64
-	DPS           float64
-	NTA           float64
-	PE            float64
-	DY            float64
-	ROE           float64
-	PTBV          float64
-	MarketCapital int
+		Low  float64 `json:"low"`
+		High float64 `json:"high"`
+	} `json:"52_week"`
+	Volume        int     `json:"volume"`
+	EPS           float64 `json:"eps"`
+	DPS           float64 `json:"dps"`
+	NTA           float64 `json:"nta"`
+	PE            float64 `json:"pe"`
+	DY            float64 `json:"dy"`
+	ROE           float64 `json:"roe"`
+	PTBV          float64 `json:"ptbv"`
+	MarketCapital int     `json:"market_capital"`
 }
 
+// quote is to create new request and options for quote result function.
+// example : quote := NewQuoteResultRequest()
+// data := quote.GetQuoteResults(
+//	 quote.WithMinPE(1),
+//	 quote.WithMinROE(20),
+// )
 type quote struct{}
 
+// NewQuoteResultRequest is to initialise quote to create new request.
 func NewQuoteResultRequest() *quote {
 	return &quote{}
 }
 
+// GetQuoteResults is to get quote results.
+// options = function start with "With".
 func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 	quotes := []*quoteResult{}
 	op := newQuoteParams(options...)
@@ -52,16 +61,18 @@ func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 		return quotes, err
 	}
 	u := "https://www.klsescreener.com/v2/screener/quote_results"
+
+	// need to set content type application/x-www-form-urlencoded for header
 	contentType := map[string]string{
 		"content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	}
+
 	resp := newRequest(http.MethodPost, u, strings.NewReader(data.Encode()), contentType)
 	defer resp.Body.Close()
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return quotes, err
 	}
-	regexpSpaces := regexp.MustCompile(`\s+`)
 	doc.Find(`tbody tr.list`).Each(func(index int, children *goquery.Selection) {
 		log.Printf("[GET] getting number %d data...", index+1)
 		quote := &quoteResult{}
@@ -89,8 +100,8 @@ func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 				split52Week := strings.Split(text, "-")
 				if len(split52Week) > 1 {
 					quote.FiftyTwoWeek = struct {
-						Low  float64
-						High float64
+						Low  float64 "json:\"low\""
+						High float64 "json:\"high\""
 					}{
 						convertStringToFloat64(split52Week[0], 3),
 						convertStringToFloat64(split52Week[1], 3),
@@ -117,13 +128,12 @@ func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 			}
 		})
 		quotes = append(quotes, quote)
-		log.Printf("[GET] %d. %v", index, quote)
+		logInfo.Printf("%d. %v\n", index, quote)
 	})
-	fmt.Println(len(quotes))
-	fmt.Println(data.Encode())
 	return quotes, nil
 }
 
+// quoteParams is the options to filter quote results.
 type quoteParams struct {
 	GetQuote         int     `json:"getquote,string,omitempty"`
 	Board            int     `json:"board,string,omitempty"`
@@ -167,8 +177,10 @@ type quoteParams struct {
 	MaxDebtToEquity  float64 `json:"debt_to_equity_max,string,omitempty"`
 }
 
+// quoteOption is the filter function for quote results.
 type quoteOption func(q *quoteParams)
 
+// generateURLRequestValues is to set the request header x-form data.
 func (qp *quoteParams) generateURLRequestValues() (url.Values, error) {
 	data := url.Values{}
 	b, err := json.Marshal(qp)
@@ -187,9 +199,10 @@ func (qp *quoteParams) generateURLRequestValues() (url.Values, error) {
 	return data, nil
 }
 
+// newQuoteParams is to initialise the options data structure.
 func newQuoteParams(options ...quoteOption) *quoteParams {
 	param := &quoteParams{}
-	param.GetQuote = 1
+	param.GetQuote = 1 // initialise the get quote option
 	for _, option := range options {
 		option(param)
 	}

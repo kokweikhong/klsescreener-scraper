@@ -2,24 +2,25 @@ package klse
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
+// marketInformation is the market page data structure.
 type marketInformation struct {
-	MarketIndex         []*marketDetails
-	TopActive           []*marketDetails
-	TopTurnover         []*marketDetails
-	TopGainers          []*marketDetails
-	TopGainersByPercent []*marketDetails
-	TopLosers           []*marketDetails
-	TopLosersByPercent  []*marketDetails
-	BursaIndex          []*marketDetails
+	MarketIndex         []*marketDetails `json:"market_index"`
+	TopActive           []*marketDetails `json:"top_active"`
+	TopTurnover         []*marketDetails `json:"top_turnover"`
+	TopGainers          []*marketDetails `json:"top_gainers"`
+	TopGainersByPercent []*marketDetails `json:"top_gainers_by_percentage"`
+	TopLosers           []*marketDetails `json:"top_losers"`
+	TopLosersByPercent  []*marketDetails `json:"top_losers_by_percentage"`
+	BursaIndex          []*marketDetails `json:"bursa_index"`
 }
 
+// marketDetails is the every market information data's data structure.
 type marketDetails struct {
 	Name           string  `json:"name"`
 	Price          float64 `json:"price"`
@@ -30,6 +31,8 @@ type marketDetails struct {
 	ChangesPercent float64 `json:"changes_percent,omitempty"`
 }
 
+// GetMarketInformation is to get all information from market page.
+// Market Index, Top Active, Top Turnover, Top Gainers, Top Losers, Bursa Index.
 func GetMarketInformation() *marketInformation {
 	market := &marketInformation{}
 	url := "https://www.klsescreener.com/v2/markets"
@@ -37,7 +40,7 @@ func GetMarketInformation() *marketInformation {
 	defer resp.Body.Close()
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		logError.Fatalf("%s, %s : %s", url, resp.Status, err.Error())
 	}
 	doc.Find(`#content div.row.equal`).Each(func(marketIndex int, s *goquery.Selection) {
 		s.Find(`div.col-md-4`).Each(func(_ int, s *goquery.Selection) {

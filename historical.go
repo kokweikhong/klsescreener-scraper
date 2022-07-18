@@ -3,7 +3,6 @@ package klse
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -25,14 +24,15 @@ type OHLC struct {
 }
 
 // GetStockHistoricalData is to get 10 years individual stock price data.
-func GetStockHistoricalData(code string) ([]*OHLC, error) {
+func GetStockHistoricalData(code string) []*OHLC {
 	prices := []*OHLC{}
 	url := fmt.Sprintf("https://www.klsescreener.com/v2/stocks/chart/%s/embedded/10y", code)
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return prices, handleError("failed to read data from response body", err)
+		logWarning.Printf("%s : %s", url, err.Error())
+		return prices
 	}
 	data := getHistoricalDataFromJS(string(body))
 	for k, d := range data {
@@ -56,9 +56,9 @@ func GetStockHistoricalData(code string) ([]*OHLC, error) {
 		price.Close = convertStringToFloat64(splitData[4], 5)
 		price.Volume = int(convertStringToFloat64(splitData[5], 0))
 		prices = append(prices, price)
-		log.Printf("[INFO] getting %d data : %v", k+1, price)
+		logInfo.Printf("getting %d data : %v", k+1, price)
 	}
-	return prices, nil
+	return prices
 }
 
 // GetBursaIndexHistoricalData
@@ -67,7 +67,11 @@ func GetBursaIndexHistoricalData(bursaIndex keys.BURSA_INDEX) []*OHLC {
 	url := "https://www.klsescreener.com/v2/stocks/chart/" + string(bursaIndex)
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logWarning.Printf("%s : %s", url, err.Error())
+		return ohlcs
+	}
 	data := getHistoricalDataFromJS(string(body))
 	wg := sync.WaitGroup{}
 	mutex := sync.Mutex{}
@@ -100,24 +104,31 @@ func GetBursaIndexHistoricalData(bursaIndex keys.BURSA_INDEX) []*OHLC {
 		}(i)
 	}
 	wg.Wait()
+	// sort the results based on time.
 	sort.Slice(ohlcs, func(i, j int) bool {
 		return ohlcs[i].Date.Before(ohlcs[j].Date)
 	})
 	return ohlcs
 }
 
+// marketHistoricalData is the market index historical data structure.
 type marketHistoricalData struct {
-	Date   time.Time
-	Close  float64
-	Volume int
+	Date   time.Time `json:"date"`
+	Close  float64   `json:"close"`
+	Volume int       `json:"volume"`
 }
 
+// GetMarketIndexHistoricalData is to get individual market index historical data.
 func GetMarketIndexHistoricalData(index keys.MARKET_INDEX) []*marketHistoricalData {
 	results := []*marketHistoricalData{}
 	url := fmt.Sprintf("https://www.klsescreener.com/v2/markets/historical_period/%v/10y", index)
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logWarning.Printf("%s : %s", url, err.Error())
+		return results
+	}
 	data := getHistoricalDataFromJS(string(body))
 	wg := sync.WaitGroup{}
 	mutex := sync.Mutex{}
@@ -148,18 +159,22 @@ func GetMarketIndexHistoricalData(index keys.MARKET_INDEX) []*marketHistoricalDa
 		}(i)
 	}
 	wg.Wait()
+
+	// sort the results by time.
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Date.Before(results[j].Date)
 	})
 	return results
 }
 
+// getHistoricalDataFromJS is to retrieve all the data from
+// javascript web source.
 func getHistoricalDataFromJS(body string) [][]string {
-	regexpSpaces := regexp.MustCompile(`\s+`)
-	bodyString := regexpSpaces.ReplaceAllString(body, "")
-	regexpData := regexp.MustCompile(`data=\[(.*?),\];`)
-	raw := regexpData.FindStringSubmatch(bodyString)
-	regexpIndividualData := regexp.MustCompile(`\[(.*?)\]`)
-	rawData := regexpIndividualData.FindAllStringSubmatch(raw[1], -1)
-	return rawData
+	regexpSpaces := regexp.MustCompile(`\s+`)               // get all the spaces
+	bodyString := regexpSpaces.ReplaceAllString(body, "")   // replace all spaces with none
+	regexpData := regexp.MustCompile(`data=\[(.*?),\];`)    // get the data = [ ] from javascript
+	raw := regexpData.FindStringSubmatch(bodyString)        // find the data from web source
+	regexpIndividualData := regexp.MustCompile(`\[(.*?)\]`) // get the individual list
+	dataList := regexpIndividualData.FindAllStringSubmatch(raw[1], -1)
+	return dataList
 }
