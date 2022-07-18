@@ -1,0 +1,20 @@
+package keys
+
+type BOARD int
+
+const (
+	MAIN_MARKET BOARD = iota + 1
+	ACE_MARKET
+	STRUCTURED_WARRANTS
+	ETF
+	BOND_AND_LOAN
+	LEAP_MARKET
+)
+
+type PROFITABLE_TYPE string
+
+const (
+	PROFITABLE_BY_YEARS    PROFITABLE_TYPE = "years"
+	PROFITABLE_BY_QUARTERS PROFITABLE_TYPE = "quarters"
+)
+
