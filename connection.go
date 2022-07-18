@@ -15,7 +15,7 @@ import (
 // klsescreenerBaseURL is klsecreener.com base URL.
 const klescreenerBaseURL = "https://www.klsescreener.com"
 
-var regexSpaces = regexp.MustCompile(`\s+`) // regular expression to find all spaces
+var regexpSpaces = regexp.MustCompile(`\s+`) // regular expression to find all spaces
 
 var (
 	logError   = log.New(os.Stdout, "[ERROR]", log.LstdFlags|log.Lshortfile)   // error log, will execute os.Exit(1)
@@ -98,7 +98,7 @@ func convertStringToFloat64(numberString string, decimal int) float64 {
 // removeAllSpaces is to replace all spaces, tabs, new line.
 // replacement is the strings that want to replace spaces.
 func removeAllSpaces(text, replacement string) string {
-	text = regexSpaces.ReplaceAllString(text, replacement)
+	text = regexpSpaces.ReplaceAllString(text, replacement)
 	text = strings.TrimSpace(text)
 	return text
 }
