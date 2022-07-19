@@ -14,13 +14,13 @@ import klse "github.com/kokweikhong/klsescreener-scraper"
 
 ```golang
     // MarketIndex
-	// TopActive
-	// TopTurnover
-	// TopGainers
-	// TopGainersByPercent
-	// TopLosers
-	// TopLosersByPercent
-	// BursaIndex
+    // TopActive
+    // TopTurnover
+    // TopGainers
+    // TopGainersByPercent
+    // TopLosers
+    // TopLosersByPercent
+    // BursaIndex
 
     // GetMarketInformation will return a struct type.
     market := klse.GetMarketInformation()
