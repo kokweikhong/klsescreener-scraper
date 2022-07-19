@@ -23,7 +23,7 @@ import klse "github.com/kokweikhong/klsescreener-scraper"
 	// BursaIndex
 
     // GetMarketInformation will return a struct type.
-    market := klse.GetMarketInformation
+    market := klse.GetMarketInformation()
 
     // Render results in json format.
     b, _ := json.MarshalIndent(market, "", "  ")
@@ -48,4 +48,97 @@ import klse "github.com/kokweikhong/klsescreener-scraper"
     // Render results in json format.
     b, _ := json.MarshalIndent(result, "", "  ")
     fmt.Println(string(b))
+```
+
+#### Get Historical Data
+
+- Get Individual Ticker Historical Data
+
+```golang
+    // Get Date, Open, High, Low, Close, Volume for
+    // individual ticker
+    results := klse.GetStockHistoricalData("0001")
+
+    // Result will return in array of data struct type.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(results, "", "  ")
+    fmt.Println(string(b))
+```
+
+- Get Market Index Historical Data
+
+```golang
+    import (
+        klse "github.com/kokweikhong/klsescreener-scraper"
+        "github.com/kokweikhong/klsescreener-scraper/keys"
+    )
+
+    // the arguments for market index need to input module "keys".
+    data := klse.GetMarketIndexHistoricalData(keys.FTSE_BURSA_MALAYSIA_KLCI)
+
+    // Result will return in slice of struct type format.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(data, "", "  ")
+    fmt.Println(string(b))
+```
+
+- Get Bursa Index Historical Data
+
+```golang
+    import (
+        klse "github.com/kokweikhong/klsescreener-scraper"
+        "github.com/kokweikhong/klsescreener-scraper/keys"
+    )
+
+    // the arguments for market index need to input module "keys".
+    data := klse.GetBursaIndexHistoricalData(keys.PROPERTY)
+
+    // Result will return in slice of struct type format.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(data, "", "  ")
+    fmt.Println(string(b))
+```
+
+### Get Entitlements or Announcements
+
+Need to initialise the request
+
+```golang
+    // Initialise the request.
+    announcement := klse.NewAnnouncementRequest()
+```
+
+- Get Recent Dividend Entitlements
+
+```golang
+    result := announcement.GetRecentDividendEntitlements()
+
+    // Result will return in slice of struct type format.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(result, "", "  ")
+    fmt.Println(string(b))
+
+```
+
+- Get Recent Share Issues Entitlements
+
+```golang
+    result := announcement.GetShareIssuedEntitlements()
+
+    // Result will return in slice of struct type format.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(result, "", "  ")
+    fmt.Println(string(b))
+```
+
+- Get Recent Quarterly Report Announcements
+
+```golang
+    result := announcement.GetQuarterReportAnnoucement()
+
+    // Result will return in slice of struct type format.
+    // Render result in json format.
+    b, _ := json.MarshalIndent(result, "", "  ")
+    fmt.Println(string(b))
+
 ```
