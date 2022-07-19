@@ -209,38 +209,102 @@ func newQuoteParams(options ...quoteOption) *quoteParams {
 	return param
 }
 
-func GetBoardInformation() {
-	url := "https://www.klsescreener.com/v2/boards/out.json"
-	content := map[string]string{
-		"content-type": "application/json; charset=UTF-8",
-	}
-	resp := newRequest(http.MethodGet, url, nil, content)
-	defer resp.Body.Close()
-	var mapResult map[string]interface{}
-	body, _ := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(body, &mapResult)
-	fmt.Println(string(body))
-	fmt.Println(mapResult["board"])
-	for _, v := range mapResult["board"].([]interface{}) {
-		for _, v2 := range v.(map[string]interface{})["Sector"].([]interface{}) {
-			name := v2.(map[string]interface{})["name"].(string)
-			name = strings.ReplaceAll(name, "&", "AND")
-			name = strings.ReplaceAll(name, " ", "_")
-			name = strings.ToUpper(name)
-			fmt.Printf("%v SECTOR = %v\n", name, v2.(map[string]interface{})["id"])
-		}
-	}
-}
-
-// Board            int      `json:"board,string,omitempty"`
 func (*quote) WithBoard(board keys.BOARD) quoteOption {
 	return func(q *quoteParams) {
 		q.Board = int(board)
 	}
 }
 
-// Sector           int      `json:"sector,string,omitempty"`
-// SubSector        int      `json:"subsector,string,omitempty"`
+// WithSector is get specific sector from board ID.
+// Must together with WithBoard and select the sector ID
+// based on board ID.
+// Sector ID based on Board ID :
+// 1) Board ID : 2, Board Name : Ace Market
+// 	- Sector ID : 41, Sector Name : Construction
+// 	- Sector ID : 37, Sector Name : Consumer Products & Services
+// 	- Sector ID : 52, Sector Name : Energy
+// 	- Sector ID : 17, Sector Name : Financial Services
+// 	- Sector ID : 54, Sector Name : Health Care
+// 	- Sector ID : 14, Sector Name : Industrial Products & Services
+// 	- Sector ID : 39, Sector Name : Plantations
+// 	- Sector ID : 56, Sector Name : Property
+// 	- Sector ID : 16, Sector Name : Technology
+// 	- Sector ID : 58, Sector Name : Telecommunications & Media
+// 	- Sector ID : 60, Sector Name : Transportation & Logistics
+// 	- Sector ID : 62, Sector Name : Utilities
+// 2) Board ID : 5, Board Name : Bond & Loan
+// 	- Sector ID : 108, Sector Name : Bond Conventional
+// 	- Sector ID : 110, Sector Name : Bond Islamic
+// 	- Sector ID : 29, Sector Name : Construction
+// 	- Sector ID : 27, Sector Name : Consumer Products & Services
+// 	- Sector ID : 112, Sector Name : Energy
+// 	- Sector ID : 32, Sector Name : Financial Services
+// 	- Sector ID : 114, Sector Name : Health Care
+// 	- Sector ID : 28, Sector Name : Industrial Products & Services
+// 	- Sector ID : 34, Sector Name : Plantation
+// 	- Sector ID : 33, Sector Name : Property
+// 	- Sector ID : 116, Sector Name : Technology
+// 	- Sector ID : 118, Sector Name : Telecommunications & Media
+// 	- Sector ID : 120, Sector Name : Transportation & Logistics
+// 	- Sector ID : 122, Sector Name : Utilities
+// 3) Board ID : 4, Board Name : ETF
+// 	- Sector ID : 26, Sector Name : ETF-Bond
+// 	- Sector ID : 106, Sector Name : ETF-Commodity
+// 	- Sector ID : 25, Sector Name : ETF-Equity
+// 4) Board ID : 6, Board Name : Leap Market
+// 	- Sector ID : 64, Sector Name : Construction
+// 	- Sector ID : 66, Sector Name : Consumer Products & Services
+// 	- Sector ID : 68, Sector Name : Energy
+// 	- Sector ID : 70, Sector Name : Financial Services
+// 	- Sector ID : 72, Sector Name : Health Care
+// 	- Sector ID : 74, Sector Name : Industrial Products & Services
+// 	- Sector ID : 76, Sector Name : Plantation
+// 	- Sector ID : 78, Sector Name : Property
+// 	- Sector ID : 80, Sector Name : Technology
+// 	- Sector ID : 82, Sector Name : Telecomunications & Media
+// 	- Sector ID : 84, Sector Name : Transportation & Logstics
+// 	- Sector ID : 86, Sector Name : Utilities
+// 5) Board ID : 1, Board Name : Main Market
+// 	- Sector ID : 13, Sector Name : Closed-End Fund
+// 	- Sector ID : 3, Sector Name : Construction
+// 	- Sector ID : 1, Sector Name : Consumer Products & Services
+// 	- Sector ID : 42, Sector Name : Energy
+// 	- Sector ID : 7, Sector Name : Financial Services
+// 	- Sector ID : 44, Sector Name : Health Care
+// 	- Sector ID : 2, Sector Name : Industrial Products & Services
+// 	- Sector ID : 10, Sector Name : Plantation
+// 	- Sector ID : 9, Sector Name : Property
+// 	- Sector ID : 12, Sector Name : Real Estate Investment Trusts
+// 	- Sector ID : 35, Sector Name : SPAC
+// 	- Sector ID : 5, Sector Name : Technology
+// 	- Sector ID : 46, Sector Name : Telecommunications & Media
+// 	- Sector ID : 48, Sector Name : Transportation & Logistics
+// 	- Sector ID : 50, Sector Name : Utilities
+// 6) Board ID : 3, Board Name : Structured Warrants
+// 	- Sector ID : 19, Sector Name : Construction
+// 	- Sector ID : 88, Sector Name : Consumer Products & Services
+// 	- Sector ID : 90, Sector Name : Energy
+// 	- Sector ID : 22, Sector Name : Financial Services
+// 	- Sector ID : 92, Sector Name : Health Care
+// 	- Sector ID : 94, Sector Name : Industrial Products & Services
+// 	- Sector ID : 23, Sector Name : Plantation
+// 	- Sector ID : 96, Sector Name : Property
+// 	- Sector ID : 24, Sector Name : Structured Warrant
+// 	- Sector ID : 98, Sector Name : Technology
+// 	- Sector ID : 100, Sector Name : Telecommunications & Media
+// 	- Sector ID : 102, Sector Name : Transportation & Logistics
+// 	- Sector ID : 104, Sector Name : Utilities
+func (*quote) WithSector(sector int) quoteOption {
+	return func(q *quoteParams) {
+		q.Sector = sector
+	}
+}
+
+func (*quote) WithSubSector(subSector keys.SUB_SECTOR) quoteOption {
+	return func(q *quoteParams) {
+		q.SubSector = int(subSector)
+	}
+}
 
 func (*quote) WithMinPE(minPE float64) quoteOption {
 	return func(q *quoteParams) {

@@ -12,12 +12,7 @@ func TestGetQuoteResults(t *testing.T) {
 	newRequest.GetQuoteResults(
 		// newRequest.WithMinPE(1),
 		// newRequest.WithMaxPE(3),
-        // newRequest.WithStockTags("0001", "6947"),
-        newRequest.WithBoard(keys.ACE_MARKET),
+		// newRequest.WithStockTags("0001", "6947"),
+		newRequest.WithBoard(keys.B_ACE_MARKET),
 	)
-    klse.GetBoardInformation()
 }
-
-// func TestGetStock(t *testing.T) {
-//     klse.GetStockInformation()
-// }
