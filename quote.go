@@ -3,7 +3,6 @@ package klse
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -209,6 +208,8 @@ func newQuoteParams(options ...quoteOption) *quoteParams {
 	return param
 }
 
+// WithBoard is the filter option based on board ID.
+// can found all the ID of boards by import "keys".
 func (*quote) WithBoard(board keys.BOARD) quoteOption {
 	return func(q *quoteParams) {
 		q.Board = int(board)
@@ -300,132 +301,155 @@ func (*quote) WithSector(sector int) quoteOption {
 	}
 }
 
+// WithSubSector is the option to filter with subsector.
+// subsector ID can be found by import "keys"
 func (*quote) WithSubSector(subSector keys.SUB_SECTOR) quoteOption {
 	return func(q *quoteParams) {
 		q.SubSector = int(subSector)
 	}
 }
 
+// WithMinPE is the option to filter with minimum PE.
 func (*quote) WithMinPE(minPE float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinPE = minPE
 	}
 }
 
+// WithMaxPE is the option to filter with maximum PE.
 func (*quote) WithMaxPE(maxPE float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxPE = maxPE
 	}
 }
 
+// WitnMinROE is the option to filter with minimum ROE.
 func (*quote) WithMinROE(minROE float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinROE = minROE
 	}
 }
 
+// WitnMaxROE is the option to filter with maximum ROE.
 func (*quote) WithMaxROE(maxROE float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxROE = maxROE
 	}
 }
 
+// WitnMinEPS is the option to filter with minimum EPS.
 func (*quote) WithMinEPS(minEPS float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinEPS = minEPS
 	}
 }
 
+// WitnMaxEPS is the option to filter with maximum EPS.
 func (*quote) WithMaxEPS(maxEPS float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxEPS = maxEPS
 	}
 }
 
+// WitnMinNTA is the option to filter with minimum NTA.
 func (*quote) WithMinNTA(minNTA float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinNTA = minNTA
 	}
 }
 
+// WitnMaxNTA is the option to filter with maximum NTA.
 func (*quote) WithMaxNTA(maxNTA float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxNTA = maxNTA
 	}
 }
 
+// WitnMinDY is the option to filter with minimum DY.
 func (*quote) WithMinDY(minDY float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinDY = minDY
 	}
 }
 
+// WithMaxDY is the option to filter with maximum DY.
 func (*quote) WithMaxDY(maxDY float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxDY = maxDY
 	}
 }
 
+// WithMinPTBV is the option to filter with minimum PTBV.
 func (*quote) WithMinPTBV(minPTBV float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinPTBV = minPTBV
 	}
 }
 
+// WithMaxPTBV is the option to filter with maximum PTBV.
 func (*quote) WithMaxPTBV(maxPTBV float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxPTBV = maxPTBV
 	}
 }
 
+// WithMinPSR is the option to filter with minimum PSR.
 func (*quote) WithMinPSR(minPSR float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinPSR = minPSR
 	}
 }
 
+// WithMaxPSR is the option to filter with maximum PSR.
 func (*quote) WithMaxPSR(maxPSR float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxPSR = maxPSR
 	}
 }
 
+// WitnMinPrice is the option to filter with minimum price.
 func (*quote) WithMinPrice(minPrice float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinPrice = minPrice
 	}
 }
 
+// WitnMaxPrice is the option to filter with maximum price.
 func (*quote) WithMaxPrice(maxPrice float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxPrice = maxPrice
 	}
 }
 
+// WitnMinVolume is the option to filter with minimum volume.
 func (*quote) WithMinVolume(minVolume float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinVolume = minVolume
 	}
 }
 
+// WitnMaxVolume is the option to filter with maximum volume.
 func (*quote) WithMaxVolume(maxVolume float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxVolume = maxVolume
 	}
 }
 
+// WitnMinMarketCapital is the option to filter with minimum market capital.
 func (*quote) WithMinMarketCapital(minMarketCapital float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinMarketCap = minMarketCapital
 	}
 }
 
+// WitnMaxMarketCapital is the option to filter with maximum market capital.
 func (*quote) WithMaxMarketCapital(maxMarketCapital float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxMarketCap = maxMarketCapital
 	}
 }
 
+// WithStockTags is the option to filter specific tickers.
 func (*quote) WithStockTags(codes ...string) quoteOption {
 	list := strings.Join(codes, ",")
 	return func(q *quoteParams) {
@@ -433,138 +457,172 @@ func (*quote) WithStockTags(codes ...string) quoteOption {
 	}
 }
 
+// WithProfitableType is the option to filter the ticker with continuos profit.
+// Profitable type can be found by import "key" which is "quarter" or "years".
 func (*quote) WithProfitableType(profitableType keys.PROFITABLE_TYPE) quoteOption {
 	return func(q *quoteParams) {
 		q.ProfitableType = string(profitableType)
 	}
 }
 
+// WithProfitablePeriod is option to filter the length of period for profit.
+// Shows companies having at least N years financial reports selected.
+// Must import together with  WithProtiableType.
 func (*quote) WithProfitablePeriod(profitablePeriod int) quoteOption {
 	return func(q *quoteParams) {
 		q.ProfitableYear = strconv.Itoa(profitablePeriod)
 	}
 }
 
+// WithProtibaleStrictOn is the option to turn on the strict mode.
 func (*quote) WithProtibaleStrictOn() quoteOption {
 	return func(q *quoteParams) {
 		q.ProfitableStrict = "on"
 	}
 }
 
+// WithQoQ is the option to filter that
+// Quarter over Quarter profit growth for last 2 financial quarters vs previous 2 financial quarters.
 func (*quote) WithQoQ() quoteOption {
 	return func(q *quoteParams) {
 		q.QoQ = "1"
 	}
 }
 
+// WithoutQoQ is turn off the qoq filter.
 func (*quote) WithoutQoQ() quoteOption {
 	return func(q *quoteParams) {
 		q.QoQ = "0"
 	}
 }
 
+// WithYoY is the option to filter that
+// Year over Year profit growth.
 func (*quote) WithYoY() quoteOption {
 	return func(q *quoteParams) {
 		q.YoY = "1"
 	}
 }
 
+// WithoutYou is the option to turn off yoy filter
 func (*quote) WithoutYoY() quoteOption {
 	return func(q *quoteParams) {
 		q.YoY = "0"
 	}
 }
 
+// WithConQ is the option to filter that
+// Continuous Quarter profit growth for last 3 quarters.
 func (*quote) WithConQ() quoteOption {
 	return func(q *quoteParams) {
 		q.ConQ = "1"
 	}
 }
 
+// WithoutConQ is the option to turn off ConQ filter.
 func (*quote) WithoutConQ() quoteOption {
 	return func(q *quoteParams) {
 		q.ConQ = "0"
 	}
 }
 
+// WithTopQ is the option to filter that
+// Top Quarter in which latest Quarter profit is 2 years high.
 func (*quote) WithTopQ() quoteOption {
 	return func(q *quoteParams) {
 		q.TopQ = "1"
 	}
 }
 
+// WithoutTopQ is the option to turn off TopQ filter.
 func (*quote) WithoutTopQ() quoteOption {
 	return func(q *quoteParams) {
 		q.TopQ = "0"
 	}
 }
 
+// WithRevenueQoQ is the option to filter that
+// Quarter over Quarter revenue growth for last 2 financial quarters vs previous 2 financial quarters.
 func (*quote) WithRevenueQoQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueQoQ = "1"
 	}
 }
 
+// WithoutRevenueQoQ is the option to turn off RevenueQoQ filter.
 func (*quote) WithoutRevenueQoQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueQoQ = "0"
 	}
 }
 
+// WithRevenueYoY is the option to filter that
+// Year over Year revenue growth.
 func (*quote) WithRevenueYoY() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueYoY = "1"
 	}
 }
 
+// WithoutRevenueYoY is the option to turn off RevenueYoY filter.
 func (*quote) WithoutRevenueYoY() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueYoY = "0"
 	}
 }
 
+// WithRevenueConQ is the option to filter that
+// Continuous Quarter revenue growth for last 3 quarters.
 func (*quote) WithRevenueConQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueConQ = "1"
 	}
 }
 
+// WithoutRevenueConQ is the option to turn off RevenueConQ filter.
 func (*quote) WithoutRevenueConQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueConQ = "0"
 	}
 }
 
+// WithRevenueTopQ is the option to filter that
+// Top Quarter where latest Quarter revenue is 2 year high.
 func (*quote) WithRevenueTopQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueTopQ = "1"
 	}
 }
 
+// WithoutRevenueTopQ is the option to turn off RevenueTopQ filter.
 func (*quote) WithoutRevenueTopQ() quoteOption {
 	return func(q *quoteParams) {
 		q.RevenueTopQ = "0"
 	}
 }
 
+// WithMinDebtToCash is the option to filter the minimum debt to cash.
 func (*quote) WithMinDebtToCash(minDebtToCash float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinDebtToCash = minDebtToCash
 	}
 }
 
+// WithMaxDebtToCash is the option to filter the maximum debt to cash.
 func (*quote) WithMaxDebtToCash(maxDebtToCash float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxDebtToCash = maxDebtToCash
 	}
 }
 
+// WithMinDebtToEquity is the option to filter the minimum debt to equity.
 func (*quote) WithMinDebtToEquity(minDebtToEquity float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MinDebtToEquity = minDebtToEquity
 	}
 }
 
+// WithMaxDebtToEquity is the option to filter the maximum debt to equity.
 func (*quote) WithMaxDebtToEquity(maxDebtToEquity float64) quoteOption {
 	return func(q *quoteParams) {
 		q.MaxDebtToEquity = maxDebtToEquity
