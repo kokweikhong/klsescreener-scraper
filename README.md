@@ -2,7 +2,7 @@
 
 ### Installation
 ```
-go get github.com/kokweikhong/klsecreener-scraper
+go get github.com/kokweikhong/klsescreener-scraper
 ```
 
 ### Usage
