@@ -76,7 +76,7 @@ func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 		log.Printf("[GET] getting number %d data...", index+1)
 		quote := &quoteResult{}
 		children.Find(`td`).Each(func(i int, element *goquery.Selection) {
-			text := regexpSpaces.ReplaceAllString(element.Text(), "")
+			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)
 			switch i {
 			case 0:
