@@ -25,7 +25,7 @@ func TestGetShareIssuedEntitlements(t *testing.T) {
 
 func TestGetQuarterReportAnnouncement (t *testing.T) {
     annoucement := klse.NewAnnouncementRequest()
-    data := annoucement.GetQuarterReportAnnoucement()
+    data := annoucement.GetQuarterReportAnnouncement()
     b, _ := json.MarshalIndent(data, "", "  ")
     fmt.Println(string(b))
 }

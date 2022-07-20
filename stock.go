@@ -14,24 +14,24 @@ import (
 // companyOverviewURL is the base url of individual stock page.
 const companyOverviewURL = "https://www.klsescreener.com/v2/stocks/view/"
 
-// companyOverview is the comapany's basic information and reports.
-type companyOverview struct {
-	BasicInformation          *companyInformation          `json:"basic_information"`
-	Statistic                 *companyStatistic            `json:"statistic"`
-	QuaterReports             []*quarterReport             `json:"quarter_reports"`
-	AnnualReports             []*annualReport              `json:"annual_reports"`
-	DividendsReport           []*dividendsReport           `json:"dividends_reports"`
-	CapitalChangesReports     []*capitalChangesReport      `json:"capital_changes_reports"`
-	WarrantsReport            []*warrantsReport            `json:"warrants_reports"`
-	ShareholdingChangesReport []*shareholdingChangesReport `json:"shareholding_changes_reports"`
+// CompanyOverview is the comapany's basic information and reports.
+type CompanyOverview struct {
+	BasicInformation          *CompanyInformation          `json:"basic_information"`
+	Statistic                 *CompanyStatistic            `json:"statistic"`
+	QuaterReports             []*QuarterReport             `json:"quarter_reports"`
+	AnnualReports             []*AnnualReport              `json:"annual_reports"`
+	DividendsReport           []*DividendsReport           `json:"dividends_reports"`
+	CapitalChangesReports     []*CapitalChangesReport      `json:"capital_changes_reports"`
+	WarrantsReport            []*WarrantsReport            `json:"warrants_reports"`
+	ShareholdingChangesReport []*ShareholdingChangesReports `json:"shareholding_changes_reports"`
 }
 
 // GetCompanyOverview is to get company's information and reports.
 // Basic Information, Statistic, Quaterly Reports, Annually Reports,
 // Dividends Reports, Capital Changes Reports, Warrants Reports,
 // Shareholding Changes Reports
-func GetCompanyOverview(code string) (*companyOverview, error) {
-	company := &companyOverview{}
+func GetCompanyOverview(code string) (*CompanyOverview, error) {
+	company := &CompanyOverview{}
 	url := companyOverviewURL + code
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
@@ -56,8 +56,8 @@ func GetCompanyOverview(code string) (*companyOverview, error) {
 	return company, nil
 }
 
-// companyInformation is basic information and statistic
-type companyInformation struct {
+// CompanyInformation is basic information and statistic
+type CompanyInformation struct {
 	Name           string  `json:"full_name"`
 	ShortName      string  `json:"short_name"`
 	Code           string  `json:"code"`
@@ -71,8 +71,8 @@ type companyInformation struct {
 
 // GetCompanyGeneralInfo is to get general info eg name, short name
 // code, summary, market...
-func getCompanyInformation(doc *goquery.Document) *companyInformation {
-	company := &companyInformation{}
+func getCompanyInformation(doc *goquery.Document) *CompanyInformation {
+	company := &CompanyInformation{}
 	page := doc.Find(`#page`).Contents()
 
 	// main section for general information.
@@ -103,8 +103,8 @@ func getCompanyInformation(doc *goquery.Document) *companyInformation {
 	return company
 }
 
-// companyStatistic is the statistic information.
-type companyStatistic struct {
+// CompanyStatistic is the statistic information.
+type CompanyStatistic struct {
 	OHLC            *OHLC   `json:"ohlc"`
 	VolumeBuy       int     `json:"volume_buy"`
 	VolumeSell      int     `json:"volume_sell"`
@@ -130,8 +130,8 @@ type companyStatistic struct {
 }
 
 // getCompanyStatistic is to get company's statistic data.
-func getCompanyStatistic(doc *goquery.Document) *companyStatistic {
-	report := &companyStatistic{}
+func getCompanyStatistic(doc *goquery.Document) *CompanyStatistic {
+	report := &CompanyStatistic{}
 	report.OHLC = &OHLC{}
 	regexpFloatDigit := regexp.MustCompile(`[-+]?([0-9]*\.[0-9]+|[0-9]+)`)
 	info := doc.FindMatcher(goquery.Single(`#page > .row > .col-xl-10 > .row:nth-child(2) > div.order-2`)).Contents()
@@ -210,8 +210,8 @@ func getCompanyStatistic(doc *goquery.Document) *companyStatistic {
 	return report
 }
 
-// quarterReport is company's queaterly financial report.
-type quarterReport struct {
+// QuarterReport is company's queaterly financial report.
+type QuarterReport struct {
 	EPS           float64   `json:"eps"`
 	DPS           float64   `json:"dps"`
 	NTA           float64   `json:"nta"`
@@ -228,15 +228,15 @@ type quarterReport struct {
 }
 
 // getQuarterReport is to get company's quarterly reports.
-func getQuarterReport(doc *goquery.Document) []*quarterReport {
-	reports := []*quarterReport{}
+func getQuarterReport(doc *goquery.Document) []*QuarterReport {
+	reports := []*QuarterReport{}
 	regexpSpaces := regexp.MustCompile(`\s+`)
 	doc.Find(`div#quarter_reports tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find(`td`)
 		if len(td.Nodes) < 2 {
 			return
 		}
-		report := &quarterReport{}
+		report := &QuarterReport{}
 		td.Each(func(index int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), "")
 			switch index {
@@ -282,7 +282,7 @@ func getQuarterReport(doc *goquery.Document) []*quarterReport {
 }
 
 // AnnualReport is the company's yearly financial report.
-type annualReport struct {
+type AnnualReport struct {
 	FinancialYear time.Time `json:"financial_year"`
 	Revenue       float64   `json:"revenue"`
 	NetProfit     float64   `json:"net_profit"`
@@ -292,14 +292,14 @@ type annualReport struct {
 }
 
 // getAnnualReport is to get company's annually reports.
-func getAnnualReport(doc *goquery.Document) []*annualReport {
-	reports := []*annualReport{}
+func getAnnualReport(doc *goquery.Document) []*AnnualReport {
+	reports := []*AnnualReport{}
 	doc.Find(`#annual tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find(`td`)
 		if len(td.Nodes) < 2 {
 			return
 		}
-		report := &annualReport{}
+		report := &AnnualReport{}
 		td.Each(func(i int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), "")
 			switch i {
@@ -326,8 +326,8 @@ func getAnnualReport(doc *goquery.Document) []*annualReport {
 	return reports
 }
 
-// dividendsReport is the company's dividend report.
-type dividendsReport struct {
+// DividendsReport is the company's dividend report.
+type DividendsReport struct {
 	AnnouncedDate time.Time `json:"announced_date"`
 	FinancialYear time.Time `json:"financial_year"`
 	Subject       string    `json:"subject"`
@@ -339,14 +339,14 @@ type dividendsReport struct {
 }
 
 // getDividendsReport is to get company's dividend reports.
-func getDividendsReport(doc *goquery.Document) []*dividendsReport {
-	reports := []*dividendsReport{}
+func getDividendsReport(doc *goquery.Document) []*DividendsReport {
+	reports := []*DividendsReport{}
 	doc.Find(`#dividends table tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find(`td`)
 		if len(td.Nodes) < 7 {
 			return
 		}
-		report := &dividendsReport{}
+		report := &DividendsReport{}
 		td.Each(func(index int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)
@@ -376,8 +376,8 @@ func getDividendsReport(doc *goquery.Document) []*dividendsReport {
 	return reports
 }
 
-// capitalChangesReport is the company's capital changes report.
-type capitalChangesReport struct {
+// CapitalChangesReport is the company's capital changes report.
+type CapitalChangesReport struct {
 	AnnouncedDate time.Time `json:"announced_date"`
 	ExpireDate    time.Time `json:"expired_date"`
 	Subject       string    `json:"subject"`
@@ -387,14 +387,14 @@ type capitalChangesReport struct {
 }
 
 // getCapitalChangesReport is to get company's capital changes reports.
-func getCapitalChangesReport(doc *goquery.Document) []*capitalChangesReport {
-	reports := []*capitalChangesReport{}
+func getCapitalChangesReport(doc *goquery.Document) []*CapitalChangesReport {
+	reports := []*CapitalChangesReport{}
 	doc.Find(`#capital_changes table tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find(`td`)
 		if len(td.Nodes) < 5 {
 			return
 		}
-		report := &capitalChangesReport{}
+		report := &CapitalChangesReport{}
 		td.Each(func(index int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)
@@ -421,8 +421,8 @@ func getCapitalChangesReport(doc *goquery.Document) []*capitalChangesReport {
 	return reports
 }
 
-// warrantsReport is the company's warrant report.
-type warrantsReport struct {
+// WarrantsReport is the company's warrant report.
+type WarrantsReport struct {
 	Name           string    `json:"name"`
 	Price          float64   `json:"price"`
 	Change         float64   `json:"change"`
@@ -436,15 +436,15 @@ type warrantsReport struct {
 }
 
 // getWarrantsReport is to get company's warrant reports.
-func getWarrantsReport(doc *goquery.Document) []*warrantsReport {
-	reports := []*warrantsReport{}
+func getWarrantsReport(doc *goquery.Document) []*WarrantsReport {
+	reports := []*WarrantsReport{}
 	doc.Find(`#warrants table tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find(`td`)
 		fmt.Println(td.Nodes)
 		if len(td.Nodes) < 8 {
 			return
 		}
-		report := &warrantsReport{}
+		report := &WarrantsReport{}
 		td.Each(func(index int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)
@@ -477,8 +477,8 @@ func getWarrantsReport(doc *goquery.Document) []*warrantsReport {
 	return reports
 }
 
-// shareholdingChangesReport is the company's shareholding changes report.
-type shareholdingChangesReport struct {
+// ShareholdingChangesReports is the company's shareholding changes report.
+type ShareholdingChangesReports struct {
 	AnnouncedDate time.Time `json:"announced_date"`
 	DateChange    time.Time `json:"date_change"`
 	Type          string    `json:"type"`
@@ -487,14 +487,14 @@ type shareholdingChangesReport struct {
 }
 
 // getShareholdingChangesReport is to get company's shareholding changes reports.
-func getShareholdingChangesReport(doc *goquery.Document) []*shareholdingChangesReport {
-	reports := []*shareholdingChangesReport{}
+func getShareholdingChangesReport(doc *goquery.Document) []*ShareholdingChangesReports {
+	reports := []*ShareholdingChangesReports{}
 	doc.Find(`#shareholding_changes tbody tr`).Each(func(_ int, tr *goquery.Selection) {
 		td := tr.Find("td")
 		if len(td.Nodes) < 5 {
 			return
 		}
-		report := &shareholdingChangesReport{}
+		report := &ShareholdingChangesReports{}
 		td.Each(func(index int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)

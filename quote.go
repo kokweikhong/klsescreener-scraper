@@ -13,8 +13,8 @@ import (
 	"github.com/kokweikhong/klsescreener-scraper/keys"
 )
 
-// quoteResult is the KLCI market quote results data structure.
-type quoteResult struct {
+// QuoteResult is the KLCI market quote results data structure.
+type QuoteResult struct {
 	Name         string  `json:"full_name"`
 	ShortName    string  `json:"short_name"`
 	Code         string  `json:"code"`
@@ -52,8 +52,8 @@ func NewQuoteResultRequest() *quote {
 
 // GetQuoteResults is to get quote results.
 // options = function start with "With".
-func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
-	quotes := []*quoteResult{}
+func (*quote) GetQuoteResults(options ...quoteOption) ([]*QuoteResult, error) {
+	quotes := []*QuoteResult{}
 	op := newQuoteParams(options...)
 	data, err := op.generateURLRequestValues()
 	if err != nil {
@@ -74,7 +74,7 @@ func (*quote) GetQuoteResults(options ...quoteOption) ([]*quoteResult, error) {
 	}
 	doc.Find(`tbody tr.list`).Each(func(index int, children *goquery.Selection) {
 		log.Printf("[GET] getting number %d data...", index+1)
-		quote := &quoteResult{}
+		quote := &QuoteResult{}
 		children.Find(`td`).Each(func(i int, element *goquery.Selection) {
 			text := regexpSpaces.ReplaceAllString(element.Text(), " ")
 			text = strings.TrimSpace(text)

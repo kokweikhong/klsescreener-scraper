@@ -111,16 +111,16 @@ func GetBursaIndexHistoricalData(bursaIndex keys.BURSA_INDEX) []*OHLC {
 	return ohlcs
 }
 
-// marketHistoricalData is the market index historical data structure.
-type marketHistoricalData struct {
+// MarketHistoricalData is the market index historical data structure.
+type MarketHistoricalData struct {
 	Date   time.Time `json:"date"`
 	Close  float64   `json:"close"`
 	Volume int       `json:"volume"`
 }
 
 // GetMarketIndexHistoricalData is to get individual market index historical data.
-func GetMarketIndexHistoricalData(index keys.MARKET_INDEX) []*marketHistoricalData {
-	results := []*marketHistoricalData{}
+func GetMarketIndexHistoricalData(index keys.MARKET_INDEX) []*MarketHistoricalData {
+	results := []*MarketHistoricalData{}
 	url := fmt.Sprintf("https://www.klsescreener.com/v2/markets/historical_period/%v/10y", index)
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
@@ -142,7 +142,7 @@ func GetMarketIndexHistoricalData(index keys.MARKET_INDEX) []*marketHistoricalDa
 			if len(splitData) != 3 {
 				return
 			}
-			result := &marketHistoricalData{}
+			result := &MarketHistoricalData{}
 			dateUnix, err := strconv.ParseInt(splitData[0], 10, 64)
 			if err != nil {
 				logError.Println(err)

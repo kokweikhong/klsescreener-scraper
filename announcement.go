@@ -18,8 +18,8 @@ func NewAnnouncementRequest() *announcement {
 	return &announcement{}
 }
 
-// dividentEntitlements is the entitlements data structure for dividend.
-type dividentEntitlements struct {
+// DividentEntitlements is the entitlements data structure for dividend.
+type DividentEntitlements struct {
 	ExpireDate time.Time `json:"expired_date"`
 	Name       string    `json:"name"`
 	Code       string    `json:"code"`
@@ -30,8 +30,8 @@ type dividentEntitlements struct {
 }
 
 // GetRecentDividendEntitlements is to get recent divident entitlements.
-func (*announcement) GetRecentDividendEntitlements() []*dividentEntitlements {
-	entitlements := []*dividentEntitlements{}
+func (*announcement) GetRecentDividendEntitlements() []*DividentEntitlements {
+	entitlements := []*DividentEntitlements{}
 	url := "https://www.klsescreener.com/v2/entitlements/dividends"
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
@@ -44,7 +44,7 @@ func (*announcement) GetRecentDividendEntitlements() []*dividentEntitlements {
 		if len(td.Nodes) < 6 {
 			return
 		}
-		entitlement := &dividentEntitlements{}
+		entitlement := &DividentEntitlements{}
 		td.Each(func(i int, element *goquery.Selection) {
 			switch i {
 			case 0:
@@ -74,8 +74,8 @@ func (*announcement) GetRecentDividendEntitlements() []*dividentEntitlements {
 	return entitlements
 }
 
-// shareIssuedEntitlements is the data structure for shares issued entitlements.
-type shareIssuedEntitlements struct {
+// ShareIssuedEntitlements is the data structure for shares issued entitlements.
+type ShareIssuedEntitlements struct {
 	RecentShareIssues   []*shareIssued `json:"recent_share_issues"`
 	UpcomingShareIssues []*shareIssued `json:"upcoming_share_issues"`
 }
@@ -93,8 +93,8 @@ type shareIssued struct {
 }
 
 // GetShareIssuedEntitlements is to get UPCOMING and RECENT share issues entitlements.
-func (*announcement) GetShareIssuedEntitlements() *shareIssuedEntitlements {
-	entitlement := &shareIssuedEntitlements{}
+func (*announcement) GetShareIssuedEntitlements() *ShareIssuedEntitlements {
+	entitlement := &ShareIssuedEntitlements{}
 	url := "https://www.klsescreener.com/v2/entitlements/shares-issue"
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
@@ -157,8 +157,8 @@ func (*announcement) GetShareIssuedEntitlements() *shareIssuedEntitlements {
 	return entitlement
 }
 
-// quarterReportAnnouncement is the data structe for the details of quarter report announcement.
-type quarterReportAnnouncement struct {
+// QuarterReportAnnouncement is the data structe for the details of quarter report announcement.
+type QuarterReportAnnouncement struct {
 	AnnouncedDate     time.Time `json:"announced_date"`
 	Name              string    `json:"name"`
 	Code              string    `json:"code"`
@@ -174,9 +174,9 @@ type quarterReportAnnouncement struct {
 	ReportLink        string    `json:"report_link"`
 }
 
-// GetQuarterReportAnnoucement is to get recent quarterly report announcements.
-func (*announcement) GetQuarterReportAnnoucement() []*quarterReportAnnouncement {
-	reports := []*quarterReportAnnouncement{}
+// GetQuarterReportAnnouncement is to get recent quarterly report announcements.
+func (*announcement) GetQuarterReportAnnouncement() []*QuarterReportAnnouncement {
+	reports := []*QuarterReportAnnouncement{}
 	url := "https://www.klsescreener.com/v2/financial-reports"
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
@@ -190,7 +190,7 @@ func (*announcement) GetQuarterReportAnnoucement() []*quarterReportAnnouncement 
 		if len(td.Nodes) < 12 {
 			return
 		}
-		report := &quarterReportAnnouncement{}
+		report := &QuarterReportAnnouncement{}
 		td.Each(func(i int, element *goquery.Selection) {
 			text := removeAllSpaces(element.Text(), " ")
 			span := element.Find("span").First()

@@ -8,8 +8,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// marketInformation is the market page data structure.
-type marketInformation struct {
+// MarketInformation is the market page data structure.
+type MarketInformation struct {
 	MarketIndex         []*marketDetails `json:"market_index"`
 	TopActive           []*marketDetails `json:"top_active"`
 	TopTurnover         []*marketDetails `json:"top_turnover"`
@@ -33,8 +33,8 @@ type marketDetails struct {
 
 // GetMarketInformation is to get all information from market page.
 // Market Index, Top Active, Top Turnover, Top Gainers, Top Losers, Bursa Index.
-func GetMarketInformation() *marketInformation {
-	market := &marketInformation{}
+func GetMarketInformation() *MarketInformation {
+	market := &MarketInformation{}
 	url := "https://www.klsescreener.com/v2/markets"
 	resp := newRequest(http.MethodGet, url, nil)
 	defer resp.Body.Close()
