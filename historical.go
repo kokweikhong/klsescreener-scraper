@@ -24,7 +24,7 @@ type OHLC struct {
 }
 
 // GetStockHistoricalData is to get 10 years individual stock price data.
-func GetStockHistoricalData(code string) []*OHLC {
+func GetStockHistoricalData(code string) ([]*OHLC, error) {
 	prices := []*OHLC{}
 	url := fmt.Sprintf("https://www.klsescreener.com/v2/stocks/chart/%s/embedded/10y", code)
 	resp := newRequest(http.MethodGet, url, nil)
@@ -32,7 +32,7 @@ func GetStockHistoricalData(code string) []*OHLC {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logWarning.Printf("%s : %s", url, err.Error())
-		return prices
+		return nil, err
 	}
 	data := getHistoricalDataFromJS(string(body))
 	for k, d := range data {
@@ -58,7 +58,7 @@ func GetStockHistoricalData(code string) []*OHLC {
 		prices = append(prices, price)
 		logInfo.Printf("getting %d data : %v", k+1, price)
 	}
-	return prices
+	return prices, nil
 }
 
 // GetBursaIndexHistoricalData
